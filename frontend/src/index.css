@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::-webkit-scrollbar {
+    width: 0;
+}
+
+::-webkit-scrollbar-track {
+    height: 0;
+}
+
+::-webkit-scrollbar-thumb {
+    width: 0;
+    height: 0;
+}
+
+/* Global CSS dosyasına ekleyin */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='checkbox'] {
+    accent-color: orange;
+}
+
+input[type='checkbox']:checked + label::before {
+    color: white;
+}
+
+/* src/index.css veya tailwind.css dosyanıza ekleyin */
+.custom-select {
+    appearance: none;
+}
+
+.custom-select option:checked {
+    background-color: orange; /* İstediğiniz renk kodunu buraya ekleyin */
+    color: #ffffff; /* İstediğiniz metin rengini buraya ekleyin */
+}
