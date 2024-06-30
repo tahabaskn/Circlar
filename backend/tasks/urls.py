@@ -12,4 +12,5 @@ router.register(r'books', BookViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('tasks/books/reorder/', BookViewSet.as_view({'post': 'reorder'}), name='books-reorder'),
+    
 ]

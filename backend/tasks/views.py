@@ -6,6 +6,7 @@ from .serializers import BookSerializer, TaskSerializer, ShortTaskSerializer, No
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.shortcuts import render
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.filter(is_deleted=False)
@@ -176,3 +177,7 @@ class BookViewSet(viewsets.ModelViewSet):
             except Book.DoesNotExist:
                 return Response({'error': f"Book with ID {book_data['id']} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'status': 'books reordered'})
+
+
+def index(request):
+    return render(request, 'index.html')
