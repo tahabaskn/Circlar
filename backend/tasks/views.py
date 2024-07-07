@@ -130,7 +130,7 @@ class WeeklyScheduleViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def get_weekly_progress(self, request):
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
         progress = {day: {} for day in days}
         schedules = WeeklySchedule.objects.all()
         for schedule in schedules:

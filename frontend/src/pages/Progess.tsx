@@ -18,7 +18,7 @@ const Progress: React.FC<ProgressProps> = ({ completedTasks }) => {
                 const response = await axios.get('http://127.0.0.1:8000/tasks/weekly-schedules/get_weekly_progress/');
                 setProgressData(response.data);
             } catch (error) {
-                console.error('Failed to fetch progress data:', error);
+                console.error('İlerleme verisi çekilemedi:', error);
             }
         };
 
@@ -33,7 +33,7 @@ const Progress: React.FC<ProgressProps> = ({ completedTasks }) => {
             >
                 <IoArrowBackCircle className='text-5xl rounded-full' />
             </button>
-            <h1 className="text-4xl font-bold mb-12 text-orange text-center">Progress</h1>
+            <h1 className="text-4xl font-bold mb-12 text-orange text-center">İlerleme</h1>
             <div className="grid grid-cols-7 gap-4">
                 {Object.entries(progressData).map(([date, tasks]) => (
                     <div key={date} className="bg-gray-3800 p-4 rounded-md">

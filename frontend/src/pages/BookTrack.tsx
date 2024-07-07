@@ -30,7 +30,7 @@ const BookTrackingPage: React.FC = () => {
         id: '',
         title: '',
         author: '',
-        status: 'Reading',
+        status: 'Okunuyor',
         startDate: '',
         endDate: '',
         thumbnail: '',
@@ -41,8 +41,6 @@ const BookTrackingPage: React.FC = () => {
     const [searchResults, setSearchResults] = useState<Book[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-
     const toTitleCase = (str: string) => {
         return str.replace(/\w\S*/g, (txt) => {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -127,7 +125,7 @@ const BookTrackingPage: React.FC = () => {
             id: item.id,
             title: item.volumeInfo.title,
             author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown',
-            status: 'Reading',
+            status: 'Okunuyor',
             startDate: '',
             endDate: '',
             thumbnail: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : '',
@@ -138,7 +136,6 @@ const BookTrackingPage: React.FC = () => {
         setSearchResults(results);
     };
     
-
     useEffect(() => {
         fetchBooks();
     }, []);
@@ -156,7 +153,6 @@ const BookTrackingPage: React.FC = () => {
             }))
         );
 
-        // Save the new order to backend
         updateBooksOrder(updatedBooks);
     };
 
@@ -164,14 +160,11 @@ const BookTrackingPage: React.FC = () => {
         const ref = React.useRef<HTMLDivElement>(null);
         const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
         const [editedNotes, setEditedNotes] = useState(book.notes || '');
-    
         const openNoteModal = () => {
             setEditedNotes(book.notes || '');
             setIsNoteModalOpen(true);
-            console.log('Modal should be open:', isNoteModalOpen); 
           };
         const closeNoteModal = () => setIsNoteModalOpen(false);
-    
         const saveNotes = async () => {
             try {
                 const response = await axios.patch(`http://127.0.0.1:8000/tasks/books/${book.id}/`, { notes: editedNotes });
@@ -182,7 +175,6 @@ const BookTrackingPage: React.FC = () => {
                 console.error("Error updating notes:", error);
             }
         };
-    
         const [, drop] = useDrop({
             accept: 'BOOK',
             hover(item: { index: number }) {
@@ -198,26 +190,24 @@ const BookTrackingPage: React.FC = () => {
                 item.index = hoverIndex;
             },
         });
-    
         const [{ isDragging }, drag] = useDrag({
             type: 'BOOK',
             item: { index },
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
-            canDrag: () => book.status === 'Want to Read',
+            canDrag: () => book.status === 'Okunacak',
         });
-    
         drag(drop(ref));
     
         return (
             <div
                 ref={ref}
-                className={`bg-gray-1 p-4 rounded-md ${book.status === 'Completed' ? 'bg-green-800' : ''}`}
+                className={`bg-gray-1 p-4 rounded-md ${book.status === 'Okundu' ? 'bg-green-800' : ''}`}
                 style={{ opacity: isDragging ? 0.5 : 1 }}
             >
                 <div className="relative">
-                    {book.status === 'Want to Read' && (
+                    {book.status === 'Okunacak' && (
                         <div className="absolute top-0 left-0 bg-orange text-white px-2 py-1 rounded-tr-md rounded-bl-md">
                             {index + 1}
                         </div>
@@ -247,9 +237,9 @@ const BookTrackingPage: React.FC = () => {
                                 onChange={(e) => setBooks(books.map(b => b.id === book.id ? { ...b, status: e.target.value } : b))}
                                 className="mb-2 py-1 px-2 border-gray-2 border block w-full rounded-md border-gray-700 bg-wheat-1 text-gray-3 shadow-sm focus:boutline-none"
                             >
-                                <option value="Reading">Reading</option>
-                                <option value="Completed">Completed</option>
-                                <option value="Want to Read">Want to Read</option>
+                                <option value="Okunuyor">Okunuyor</option>
+                                <option value="Okundu">Okundu</option>
+                                <option value="Okunacak">Okunacak</option>
                             </select>
                             <input
                                 type="date"
@@ -277,13 +267,13 @@ const BookTrackingPage: React.FC = () => {
                             />
                             <button
                                 onClick={() => deleteBook(book.id)}
-                                className="mt-2 px-4 py-2 bg-red-600 text-gray-3 rounded-md hover:bg-orange focus:outline-none"
+                                className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-orange focus:outline-none"
                             >
-                                Delete
+                                Sil
                             </button>
                         </>
                     )}
-                    <FaStickyNote className={`absolute top-0 right-0 cursor-pointer ${book.status === "Completed" ? "text-white" : "text-gray-2"}`} onClick={openNoteModal} />
+                    <FaStickyNote className={`absolute top-0 right-0 cursor-pointer ${book.status === "Okundu" ? "text-white" : "text-gray-2"}`} onClick={openNoteModal} />
                     <Modal 
                         isOpen={isNoteModalOpen}
                         onRequestClose={closeNoteModal} 
@@ -302,13 +292,13 @@ const BookTrackingPage: React.FC = () => {
                                         onClick={saveNotes} 
                                         className="px-4 py-2 bg-orange text-white hover:bg-orange-2 transition-all rounded-md mr-2 focus:outline-none"
                                     >
-                                        Save Notes
+                                        Altını Çiz
                                     </button>
                                     <button 
                                         onClick={closeNoteModal} 
                                         className="px-4 py-2 bg-navy text-white hover:bg-navy-3 transition-all rounded-md focus:outline-none"
                                     >
-                                        Cancel
+                                        İptal
                                     </button>
                                 </div>
                             </div>
@@ -317,19 +307,18 @@ const BookTrackingPage: React.FC = () => {
                 </div>
                 {!isEditing && (
                     <>
-                        <p className={`flex justify-center font-bold text-gray-3 ${book.status === "Completed" ? "text-white" : ""}`}>{book.title}</p>
-                        <p className={`text-gray-3 ${book.status === "Completed" ? "text-white" : ""}`}>{book.author}</p>
-                        <p className={`text-gray-3 ${book.status === "Completed" ? "text-white" : ""}`}>{book.status}</p>
-                        {book.startDate !== '0001-01-01' && <p className={`text-gray-3 ${book.status === "Completed" ? "text-white" : ""}`}>Start Date: {book.startDate}</p>}
-                        {book.endDate !== '0001-01-01' && <p className={`text-gray-3 ${book.status === "Completed" ? "text-white" : ""}`}>End Date: {book.endDate}</p>}
-                        <p className={`text-gray-3 ${book.status === "Completed" ? "text-white" : ""}`}>Pages: {book.pages}</p>
+                        <p className={`flex justify-center font-bold text-gray-3 ${book.status === "Okundu" ? "text-white" : ""}`}>{book.title}</p>
+                        <p className={`text-gray-3 ${book.status === "Okundu" ? "text-white" : ""}`}>{book.author}</p>
+                        <p className={`text-gray-3 ${book.status === "Okundu" ? "text-white" : ""}`}>{book.status}</p>
+                        {book.startDate !== '0001-01-01' && <p className={`text-gray-3 ${book.status === "Okundu" ? "text-white" : ""}`}>Başlama: {book.startDate}</p>}
+                        {book.endDate !== '0001-01-01' && <p className={`text-gray-3 ${book.status === "Okundu" ? "text-white" : ""}`}>Bitiş: {book.endDate}</p>}
+                        <p className={`text-gray-3 ${book.status === "Okundu" ? "text-white" : ""}`}>Sayfa Sayısı: {book.pages}</p>
                     </>
                 )}
             </div>
         );
     };
     
-
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="p-8 text-gray-3 bg-wheat-1 min-h-screen">
@@ -339,7 +328,7 @@ const BookTrackingPage: React.FC = () => {
                 >
                     <IoArrowBackCircle className='text-5xl rounded-full'/>
                 </button>
-                <h1 className="text-4xl font-bold mb-6 text-center text-orange">Book Tracking</h1>
+                <h1 className="text-4xl font-bold mb-6 text-center text-orange">Kütüphane</h1>
                 {isModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10 backdrop-blur-sm animate-modal-grow" onClick={() => setIsModalOpen(false)}>
                         <div className="bg-gray-2 px-8 py-4 text-white max-w-3xl mx-auto rounded-md shadow-lg" onClick={(e) => e.stopPropagation()}>
@@ -350,10 +339,10 @@ const BookTrackingPage: React.FC = () => {
                                 &times;
                             </button>
                             <div className="flex flex-col justify-center items-center w-128">
-                            <h1 className='text-4xl text-center mb-8'>Add Book</h1>
+                            <h1 className='text-4xl text-center mb-8'>Kitap Ekle</h1>
                                 <input
                                     type="text"
-                                    placeholder="Search for a book"
+                                    placeholder="Kitap Ara"
                                     value={searchTerm}
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value);
@@ -380,14 +369,14 @@ const BookTrackingPage: React.FC = () => {
                                 )}
                                 <input
                                     type="text"
-                                    placeholder="Book Title"
+                                    placeholder="Kitap Adı"
                                     value={newBook.title}
                                     onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
                                     className="mt-4 block w-full rounded-md border-gray-700 bg-white px-2 mb-2 text-black shadow-sm focus:outline-none"
                                 />
                                 <input
                                     type="text"
-                                    placeholder="Author"
+                                    placeholder="Yazar"
                                     value={newBook.author}
                                     onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
                                     className="mt-1 block w-full rounded-md border-gray-700 bg-white px-2 mb-2 text-black shadow-sm focus:outline-none"
@@ -397,9 +386,9 @@ const BookTrackingPage: React.FC = () => {
                                     onChange={(e) => setNewBook({ ...newBook, status: e.target.value })}
                                     className="mt-1 block w-full rounded-md border-gray-700 placeholder:text-gray-400 bg-white px-1 mb-2 text-black shadow-sm focus:outline-none"
                                 >
-                                    <option value="Reading">Reading</option>
-                                    <option value="Completed">Completed</option>
-                                    <option value="Want to Read">Want to Read</option>
+                                    <option value="Okunuyor">Okunuyor</option>
+                                    <option value="Okundu">Okundu</option>
+                                    <option value="Okunacak">Okunacak</option>
                                 </select>
                                 <input
                                     type="date"
@@ -415,7 +404,7 @@ const BookTrackingPage: React.FC = () => {
                                 />
                                 <input
                                     type="text"
-                                    placeholder="Thumbnail URL"
+                                    placeholder="Küçükresim URLsi"
                                     value={newBook.thumbnail}
                                     onChange={(e) => setNewBook({ ...newBook, thumbnail: e.target.value })}
                                     className="mt-1 block w-full rounded-md border-gray-700 bg-white px-2 mb-2 text-black shadow-sm focus:outline-none"
@@ -431,7 +420,7 @@ const BookTrackingPage: React.FC = () => {
                                     onClick={() => addBook(newBook)}
                                     className="mt-4 px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-2 active:scale-105 focus:outline-none"
                                 >
-                                    Add Book
+                                    Ekle
                                 </button>
                             </div>
                         </div>
@@ -442,7 +431,7 @@ const BookTrackingPage: React.FC = () => {
                         onClick={() => setIsModalOpen(true)}
                         className="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-2 focus:outline-none"
                     >
-                        Add New Book
+                        Kitap Ekle
                     </button>
                 </div>
                 <div className="grid grid-cols-5 gap-4">
@@ -460,7 +449,7 @@ const BookTrackingPage: React.FC = () => {
                     }}
                     className="mt-6 px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-2"
                 >
-                    {isEditing ? 'Save Changes' : 'Edit Books'}
+                    {isEditing ? 'Değişiklikleri Kaydet' : 'Kitapları Düzenle'}
                 </button>
                 {selectedBookImage && (
                     <div
